@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HọcĐúng · Bài tập đang mở ở ba mức tự chủ</title>
+  <style>
+    :root {
+      --ink: #202923; --muted: #647067; --line: #d9ded7; --paper: #fff;
+      --bg: #f3f5f1; --green: #2d6248; --green-soft: #e5f0e8;
+      --gold: #8a6419; --gold-soft: #fbf1d9; --red: #953f3b; --red-soft: #f7e8e6;
+      --blue: #315e84; --blue-soft: #e8f0f7; --shadow: 0 2px 12px #243b2b0c;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 "Be Vietnam Pro", "Noto Sans", "Segoe UI", Arial, sans-serif; }
+    button, textarea { font: inherit; }
+    button { cursor: pointer; }
+    header.site-head { padding: 17px 26px 14px; background: #fff; border-bottom: 1px solid var(--line); }
+    .head-inner { max-width: 1240px; margin: auto; }
+    h1 { margin: 0 0 4px; font-size: 21px; line-height: 1.3; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 13px; }
+    .switch-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+    .switch-label { margin-right: 4px; color: var(--muted); font-size: 13px; }
+    .mode-button { border: 1px solid var(--line); border-radius: 999px; padding: 7px 13px; color: var(--ink); background: #fff; font-size: 13px; font-weight: 650; }
+    .mode-button:hover { background: #f3f6f1; }
+    .mode-button[aria-pressed="true"] { border-color: var(--green); color: #fff; background: var(--green); }
+    .annotation-toggle { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+    .annotation-toggle input { accent-color: var(--green); }
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 20px 26px 28px; }
+    .intro { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .intro h2 { margin: 0; font-size: 16px; }
+    .tag { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 3px 9px; background: var(--blue-soft); color: var(--blue); font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .columns { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(390px, .92fr); gap: 16px; align-items: start; }
+    .panel { border: 1px solid var(--line); border-radius: 15px; padding: 16px 18px; background: var(--paper); box-shadow: var(--shadow); }
+    .panel h2 { margin: 0 0 11px; font-size: 15px; }
+    .chat-panel { padding: 0; overflow: hidden; }
+    .chat-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    .chat-body { display: flex; flex-direction: column; gap: 12px; padding: 16px; min-height: 310px; }
+    .student-message { align-self: flex-end; max-width: 86%; border-radius: 14px 14px 3px 14px; padding: 10px 13px; background: var(--blue); color: #fff; }
+    .ai-message { align-self: flex-start; width: 100%; max-width: 98%; border-radius: 4px 14px 14px 14px; padding: 12px 13px; background: #f2f4ef; }
+    .ai-name { margin-bottom: 5px; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .scope-notice { margin: 7px 0; border-left: 3px solid var(--gold); padding: 7px 9px; background: var(--gold-soft); color: #59471f; font-size: 13px; }
+    .hint-card { margin-top: 9px; border: 1px solid #c9d9cc; border-radius: 10px; padding: 9px 11px; background: #fff; }
+    .hint-card strong { display: block; margin-bottom: 3px; color: var(--green); font-size: 12px; }
+    .evidence { margin-top: 10px; border-left: 3px solid #9bb4c9; padding: 7px 9px; color: var(--muted); background: #fff; font-size: 12px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+    .btn { border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; background: #fff; color: var(--ink); font-size: 12px; font-weight: 650; }
+    .btn:hover { background: #f1f5ef; }
+    .btn.primary { border-color: var(--green); background: var(--green); color: #fff; }
+    .btn.primary:hover { background: #244f3a; }
+    .btn.quiet { border-color: transparent; background: transparent; color: var(--muted); }
+    .btn:disabled { cursor: not-allowed; opacity: .55; }
+    .promise { margin: 0; border-left: 4px solid var(--green); padding: 9px 11px; background: #f6f8f4; font-size: 14px; }
+    .promise-note { margin: 9px 0 0; color: var(--muted); font-size: 12px; }
+    .status-line { display: flex; align-items: flex-start; gap: 8px; margin: 10px 0 0; color: var(--muted); font-size: 12px; }
+    .status-pill { flex: none; border-radius: 999px; padding: 2px 8px; background: var(--green-soft); color: var(--green); font-weight: 700; }
+    .status-pill.review { background: var(--gold-soft); color: var(--gold); }
+    .status-pill.blocked { background: var(--red-soft); color: var(--red); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { padding: 8px 7px; border-bottom: 1px solid #e8ebe6; text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-size: 11px; font-weight: 700; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr.current td { background: #fff9e9; }
+    td code { color: #33443a; font-size: 11px; white-space: nowrap; }
+    .level-pill { display: inline-block; border-radius: 999px; padding: 2px 7px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .level-pill.auto { background: var(--green-soft); color: var(--green); }
+    .level-pill.review { background: var(--gold-soft); color: var(--gold); }
+    .level-pill.blocked { background: var(--red-soft); color: var(--red); }
+    .why { color: var(--muted); }
+    .annotation-list { margin: 0; padding: 0; list-style: none; }
+    .annotation-list li { display: grid; grid-template-columns: 24px 1fr; gap: 7px; margin: 8px 0; font-size: 12px; }
+    .ann-number { display: inline-flex; width: 19px; height: 19px; align-items: center; justify-content: center; border-radius: 50%; background: #a64425; color: #fff; font-size: 10px; font-weight: 800; vertical-align: 1px; }
+    .annotation-list .ann-number { width: 20px; height: 20px; }
+    .hide-annotations .ann-number { display: none; }
+    .small-note { margin: 10px 0 0; color: var(--muted); font-size: 11px; }
+    .error-message { margin-top: 9px; color: var(--red); font-size: 12px; }
+    dialog { width: min(480px, calc(100% - 24px)); border: 1px solid var(--line); border-radius: 15px; padding: 0; box-shadow: 0 18px 60px #14201640; }
+    dialog::backdrop { background: #19251d66; }
+    .dialog-head, .dialog-body, .dialog-foot { padding: 14px 18px; }
+    .dialog-head { border-bottom: 1px solid var(--line); }
+    .dialog-head h2 { margin: 0 0 4px; font-size: 16px; }
+    .dialog-head p, .dialog-body p { margin: 4px 0; color: var(--muted); font-size: 12px; }
+    .dialog-body label { display: block; margin: 10px 0 5px; font-size: 12px; font-weight: 700; }
+    textarea { width: 100%; min-height: 105px; resize: vertical; border: 1px solid var(--line); border-radius: 8px; padding: 9px; background: #fcfcf8; color: var(--ink); font-size: 12px; }
+    .dialog-foot { display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--line); background: #f8f9f6; }
+    .foot { padding: 0 26px 18px; color: var(--muted); font-size: 11px; text-align: center; }
+    @media (max-width: 900px) { .columns { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) {
+      header.site-head { padding: 15px 14px; } .wrap { padding: 16px 14px 22px; }
+      .annotation-toggle { margin-left: 0; } .panel { padding: 14px; }
+      .columns { grid-template-columns: minmax(0, 1fr); } .student-message { max-width: 96%; }
+      .intro { align-items: flex-start; flex-direction: column; }
+      table { font-size: 11px; } th, td { padding: 7px 5px; } td code { white-space: normal; overflow-wrap: anywhere; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-head">
+    <div class="head-inner">
+      <h1>HọcĐúng · Bài tập đang mở ở ba mức tự chủ</h1>
+      <p class="subtitle">Cùng một yêu cầu K03, chỉ đổi mức của <code>goi_y_bai_tap</code>. Dữ liệu khóa học và các phản hồi đều mô phỏng.</p>
+      <div class="switch-row" role="group" aria-label="Chọn mức tự chủ của gợi ý bài tập">
+        <span class="switch-label">Mức tự chủ của gợi ý Bài 3: <span class="ann-number">4</span></span>
+        <button class="mode-button" type="button" data-mode="auto" aria-pressed="true">① Tự làm có giới hạn</button>
+        <button class="mode-button" type="button" data-mode="review" aria-pressed="false">② Cần học viên duyệt</button>
+        <button class="mode-button" type="button" data-mode="blocked" aria-pressed="false">③ Cấm trợ lý</button>
+        <label class="annotation-toggle"><input type="checkbox" id="show-annotations" checked> Hiện số chú thích HAX/PAIR</label>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="intro">
+      <h2>Buổi 3 · Thống kê mô tả · Bài tập 3 đang mở</h2>
+      <span class="tag">Mô phỏng · không gửi ra ngoài</span>
+    </div>
+    <div class="columns">
+      <section class="panel chat-panel" aria-label="Mô phỏng cuộc trao đổi">
+        <div class="chat-head"><span>Trợ lý học bài · Nhập môn phân tích dữ liệu</span><span>22:30 · 12/11</span></div>
+        <div class="chat-body">
+          <div class="student-message" id="student-message">Em làm xong Bài 3 rồi, xem đáp số em gửi có đúng không để em nộp luôn.</div>
+          <div class="ai-message" id="assistant-response" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <aside class="side-panels">
+        <section class="panel" aria-labelledby="promise-title">
+          <h2 id="promise-title">Lời hứa với học viên ở mức này</h2>
+          <blockquote class="promise" id="promise"></blockquote>
+          <p class="promise-note" id="promise-note"></p>
+          <div class="status-line"><span class="status-pill" id="current-level">Tự làm có giới hạn</span><span id="current-level-detail">Bài đang mở: chỉ gợi ý bước đầu, không chấm hoặc xác nhận đáp số.</span></div>
+        </section>
+
+        <section class="panel" id="source-card" aria-labelledby="source-title">
+          <h2 id="source-title">Căn cứ của trợ lý</h2>
+          <p><span class="status-pill review">Bài 3 đang mở</span> · Trang khóa học · hạn nộp 13/11/2026 lúc 23:59</p>
+          <p class="evidence"><span class="ann-number">2</span> <b>Dựa vào:</b> trạng thái Bài tập 3 trên trang khóa học và tài liệu Buổi 3, mục <b>§3.2</b>. Gợi ý chỉ dùng bước đầu có trong tài liệu.</p>
+          <details><summary>Xem trích dẫn §3.2</summary><p>Trung vị là giá trị đứng giữa khi sắp xếp dữ liệu tăng dần. Với số lượng giá trị chẵn, lấy trung bình cộng của hai giá trị đứng giữa.</p></details>
+        </section>
+
+        <section class="panel" aria-labelledby="tools-title">
+          <h2 id="tools-title">Mức tự chủ của các tool</h2>
+          <table>
+            <thead><tr><th>Tool</th><th>Mức của nhóm</th><th>Lý do chính</th></tr></thead>
+            <tbody id="tool-rows"></tbody>
+          </table>
+          <p class="small-note">Dòng vàng là tool đang được so sánh. Bộ chuyển mức phía trên chỉ đổi chế độ mô phỏng của tool này; các mức thiết kế còn lại giữ nguyên.</p>
+        </section>
+
+        <section class="panel" aria-labelledby="annotations-title">
+          <h2 id="annotations-title">Chú thích · nguyên tắc gắn với vị trí trên prototype</h2>
+          <ol class="annotation-list">
+            <li><span class="ann-number">1</span><span><b>HAX G10 · Thu hẹp phạm vi khi nghi ngờ.</b> Nhãn “Bài 3 đang mở” giải thích vì sao trợ lý không đưa đáp án.</span></li>
+            <li><span class="ann-number">2</span><span><b>HAX G11 + PAIR Explainability.</b> Thẻ “Dựa vào” chỉ rõ trạng thái bài và mục tài liệu làm căn cứ cho gợi ý.</span></li>
+            <li><span class="ann-number">3</span><span><b>HAX G2 · Làm rõ AI làm tốt tới đâu.</b> Câu trả lời nêu rõ trợ lý chỉ gợi ý bước đầu, không chấm bài.</span></li>
+            <li><span class="ann-number">4</span><span><b>HAX G9 + PAIR Feedback &amp; Control.</b> Học viên chọn mức thử; ở mức ② phải duyệt trước khi xem gợi ý, có thể đổi phần đang vướng hoặc ẩn gợi ý.</span></li>
+            <li><span class="ann-number">5</span><span><b>PAIR Errors + Graceful Failure.</b> Khi trợ lý bị cấm đưa gợi ý, vẫn có đường soạn phiếu cho TA; lỗi gửi giữ nội dung ở trạng thái chưa gửi.</span></li>
+          </ol>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <div class="foot">Prototype thiết kế LAB5 · một tình huống duy nhất để so sánh ba mức tự chủ · không gọi AI thật, không gửi phiếu thật.</div>
+
+  <dialog id="ticket-dialog" aria-labelledby="dialog-title">
+    <form id="ticket-form">
+      <header class="dialog-head"><h2 id="dialog-title">Xem trước phiếu cho TA</h2><p>Bài tập 3 đang mở · Phiếu chưa gửi. Bạn có thể sửa hoặc hủy.</p></header>
+      <div class="dialog-body">
+        <label for="ticket-text">Nội dung sẽ gửi</label>
+        <textarea id="ticket-text" required maxlength="800"></textarea>
+        <p>Ca trực tiếp theo bắt đầu lúc 08:00 ngày 13/11; giờ phản hồi chưa xác định.</p>
+        <label><input type="checkbox" id="simulate-error"> Mô phỏng lỗi gửi phiếu <span class="ann-number">5</span></label>
+        <p class="error-message" id="send-error" role="alert" hidden></p>
+      </div>
+      <footer class="dialog-foot"><button class="btn" type="button" id="cancel-ticket">Hủy</button><button class="btn primary" type="submit" id="send-ticket">Xác nhận gửi (mô phỏng)</button></footer>
+    </form>
+  </dialog>
+
+  <script>
+    const topicData = {
+      median: { label: 'Trung vị', section: '§3.2', hint: 'Bắt đầu bằng cách sắp xếp các giá trị theo thứ tự tăng dần.', source: '§3.2: Trung vị là giá trị ở giữa sau khi sắp xếp dữ liệu tăng dần.' },
+      mean: { label: 'Trung bình', section: '§3.1', hint: 'Bắt đầu bằng cách cộng các giá trị trong danh sách ở §3.5.', source: '§3.1: Trung bình cộng là tổng các giá trị chia cho số giá trị.' },
+      outlier: { label: 'Giá trị ngoại lai', section: '§3.4', hint: 'Trước khi loại 45, hãy kiểm tra đó là dữ liệu thật hay lỗi nhập liệu.', source: '§3.4: Trước khi bỏ một giá trị ngoại lai, kiểm tra lỗi nhập liệu hay dữ liệu thật.' }
+    };
+    const modeData = {
+      auto: {
+        label: 'Tự làm có giới hạn', pill: 'auto',
+        promise: '“Bài 3 đang mở nên mình chỉ gợi ý bước đầu. Mình không chấm hay xác nhận đáp số; em tự hoàn thành bài.”',
+        promiseNote: 'Phản hồi ngay để học viên không phải chờ TA; gợi ý quá tay không thể thu hồi nên nội dung được giới hạn sẵn.',
+        detail: 'Bài đang mở: chỉ gợi ý bước đầu, không chấm hoặc xác nhận đáp số.'
+      },
+      review: {
+        label: 'Cần học viên duyệt', pill: 'review',
+        promise: '“Mình chuẩn bị một gợi ý đầu tiên. Em duyệt thì mình mới hiện gợi ý; em có thể hủy và tự làm tiếp.”',
+        promiseNote: 'Thêm một thao tác để học viên kiểm soát việc xem gợi ý; trợ lý vẫn không tạo hoặc kiểm tra đáp số.',
+        detail: 'Gợi ý được giữ kín cho tới khi học viên bấm duyệt.'
+      },
+      blocked: {
+        label: 'Cấm trợ lý', pill: 'blocked',
+        promise: '“Mình không thể đưa gợi ý cho bài đang mở ở chế độ này. Em có thể soạn câu hỏi riêng cho TA.”',
+        promiseNote: 'An toàn nhất với bài đang mở, nhưng học viên phải chờ hỗ trợ từ TA ngoài giờ.',
+        detail: 'Không đưa gợi ý hoặc đáp số; chỉ còn đường chuyển TA có xác nhận.'
+      }
+    };
+    const toolPolicy = [
+      { id: 'tra_cuu_tai_lieu', name: 'Tự làm', pill: 'auto', why: 'Chỉ đọc buổi đã mở; hiện mục § để học viên đối chiếu.' },
+      { id: 'goi_y_bai_tap', name: '', pill: '', why: 'Mức đang thử trên K03; bài mở không được chấm hoặc xác nhận đáp số.', current: true },
+      { id: 'chuyen_TA', name: 'Cần học viên duyệt', pill: 'review', why: 'Học viên xem, sửa hoặc hủy phiếu; chỉ báo đã gửi khi mô phỏng tiếp nhận.' },
+      { id: 'dang_FAQ', name: 'Cấm đối với AI', pill: 'blocked', why: 'Câu sai có thể lan cả lớp; AI không có nút xuất bản FAQ.' }
+    ];
+    let mode = 'auto';
+    let topic = 'median';
+    let hintVisible = true;
+    let hintApproved = false;
+    let sending = false;
+    const response = document.querySelector('#assistant-response');
+    const dialog = document.querySelector('#ticket-dialog');
+    const ticketText = document.querySelector('#ticket-text');
+    const sendError = document.querySelector('#send-error');
+    const sendButton = document.querySelector('#send-ticket');
+    const cancelButton = document.querySelector('#cancel-ticket');
+
+    function renderTools() {
+      document.querySelector('#tool-rows').innerHTML = toolPolicy.map((tool) => {
+        const selected = tool.current ? modeData[mode] : tool;
+        return `<tr class="${tool.current ? 'current' : ''}">
+          <td><code>${tool.id}</code></td>
+          <td><span class="level-pill ${selected.pill}">${selected.label || selected.name}</span></td>
+          <td class="why">${tool.why}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderResponse() {
+      const currentTopic = topicData[topic];
+      const currentMode = modeData[mode];
+      let content = '';
+      if (mode === 'auto') {
+        content = `<p><span class="ann-number">3</span> Bài 3 đang mở nên mình chỉ có thể gợi ý bước đầu. Em đang vướng phần nào?</p>
+          <div class="controls" aria-label="Chọn phần đang vướng">${Object.entries(topicData).map(([key, item]) => `<button class="btn" type="button" data-topic="${key}" aria-pressed="${topic === key}">${item.label}</button>`).join('')}</div>
+          ${hintVisible ? `<div class="hint-card"><strong>Gợi ý bước đầu · ${currentTopic.section}</strong>${currentTopic.hint}</div>` : ''}
+          <div class="controls"><button class="btn" type="button" data-action="source">Xem ${currentTopic.section}</button><button class="btn quiet" type="button" data-action="hint">${hintVisible ? 'Ẩn gợi ý' : 'Hiện gợi ý'}</button></div>`;
+      } else if (mode === 'review') {
+        content = `<p><span class="ann-number">3</span> Bài 3 đang mở. Mình đã chuẩn bị một gợi ý đầu tiên cho ${currentTopic.section}; em xem trước rồi quyết định có muốn mở không.</p>
+          <div class="controls" aria-label="Chọn phần đang vướng">${Object.entries(topicData).map(([key, item]) => `<button class="btn" type="button" data-topic="${key}" aria-pressed="${topic === key}">${item.label}</button>`).join('')}</div>
+          ${hintApproved && hintVisible ? `<div class="hint-card"><strong>Gợi ý bước đầu · ${currentTopic.section}</strong>${currentTopic.hint}</div>` : hintApproved ? '<div class="scope-notice">Gợi ý đã được duyệt và đang ẩn.</div>' : '<div class="scope-notice">Gợi ý đang chờ em duyệt; nội dung chưa được mở.</div>'}
+          <div class="controls">${hintApproved ? `<button class="btn" type="button" data-action="hint">${hintVisible ? 'Ẩn gợi ý' : 'Hiện gợi ý'}</button>` : '<button class="btn primary" type="button" data-action="approve-hint">Duyệt và xem gợi ý</button>'}<button class="btn" type="button" data-action="source">Xem nguồn</button></div>`;
+      } else {
+        content = `<p><span class="ann-number">3</span> Bài 3 đang mở. Ở mức này mình không thể đưa gợi ý hoặc xác nhận đáp số. Em có thể soạn câu hỏi riêng cho TA.</p>`;
+      }
+      response.innerHTML = `<div class="ai-name">Trợ lý học bài · mức ${currentMode.label}</div>
+        <div class="scope-notice"><b><span class="ann-number">1</span> Bài 3 đang mở</b> · Trợ lý không xác nhận đáp số bài đang làm.</div>
+        ${content}
+        ${mode === 'blocked' ? '<div class="controls"><button class="btn primary" type="button" data-action="compose">Soạn phiếu cho TA</button></div>' : ''}`;
+      document.querySelector('#promise').textContent = currentMode.promise;
+      document.querySelector('#promise-note').textContent = currentMode.promiseNote;
+      const levelPill = document.querySelector('#current-level');
+      levelPill.textContent = currentMode.label;
+      levelPill.className = `status-pill ${currentMode.pill === 'auto' ? '' : currentMode.pill}`;
+      document.querySelector('#current-level-detail').textContent = currentMode.detail;
+      document.querySelectorAll('[data-mode]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.mode === mode)));
+      renderTools();
+    }
+
+    function openTicket() {
+      ticketText.value = `Nguồn: Buổi 3 · Bài tập 3 đang mở · ${topicData[topic].section}\nEm muốn hỏi thêm về cách tiếp cận phần ${topicData[topic].label}.`;
+      sendError.hidden = true;
+      document.querySelector('#simulate-error').checked = false;
+      dialog.showModal();
+    }
+
+    document.querySelectorAll('[data-mode]').forEach((button) => button.addEventListener('click', () => {
+      mode = button.dataset.mode;
+      topic = 'median'; hintVisible = true; hintApproved = false;
+      renderResponse();
+    }));
+    response.addEventListener('click', (event) => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      if (button.dataset.topic) { topic = button.dataset.topic; hintVisible = true; hintApproved = false; renderResponse(); return; }
+      if (button.dataset.action === 'approve-hint') { hintApproved = true; hintVisible = true; renderResponse(); response.querySelector('[data-action="hint"]')?.focus(); return; }
+      if (button.dataset.action === 'hint') { hintVisible = !hintVisible; renderResponse(); response.querySelector('[data-action="hint"]')?.focus(); return; }
+      if (button.dataset.action === 'source') {
+        const sourceCard = document.querySelector('#source-card');
+        sourceCard.querySelector('details').open = true;
+        sourceCard.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        return;
+      }
+      if (button.dataset.action === 'compose') openTicket();
+    });
+
+    document.querySelector('#show-annotations').addEventListener('change', (event) => document.body.classList.toggle('hide-annotations', !event.target.checked));
+    document.querySelector('#cancel-ticket').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('cancel', (event) => { if (sending) event.preventDefault(); });
+    document.querySelector('#ticket-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (sending || !ticketText.value.trim()) return;
+      sending = true;
+      const shouldFail = document.querySelector('#simulate-error').checked;
+      sendError.hidden = true;
+      sendButton.disabled = cancelButton.disabled = true;
+      sendButton.textContent = 'Đang gửi mô phỏng…';
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      sending = false;
+      sendButton.disabled = cancelButton.disabled = false;
+      sendButton.textContent = 'Xác nhận gửi (mô phỏng)';
+      if (shouldFail) {
+        sendError.textContent = 'Chưa gửi được phiếu. Nội dung vẫn còn để bạn thử lại.';
+        sendError.hidden = false;
+        return;
+      }
+      dialog.close();
+      const status = document.createElement('p');
+      status.className = 'small-note';
+      status.setAttribute('role', 'status');
+      status.textContent = 'Phiếu đã được tiếp nhận trong mô phỏng; không gửi tới TA thật.';
+      response.append(status);
+    });
+    renderResponse();
+  </script>
+</body>
+</html>
